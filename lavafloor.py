@@ -87,13 +87,13 @@ class Player(pg.sprite.Sprite):
         if self.rect.top < 0:
             self.rect.top = 0
             self.vspeed = 0
-        elif self.rect.bottom > SCREEN_RES['y']:
+        if self.rect.bottom > SCREEN_RES['y']:
             self.rect.bottom = SCREEN_RES['y']
             self.vspeed = 0
             self.can_jump = True
-        elif self.rect.left < 0:
+        if self.rect.left < 0:
             self.rect.left = 0
-        elif self.rect.right > SCREEN_RES['x']:
+        if self.rect.right > SCREEN_RES['x']:
             self.rect.right = SCREEN_RES['x']
         for obj in self.groups()[0]:
             if self.rect.colliderect(obj.rect) and obj != self:
