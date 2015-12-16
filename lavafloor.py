@@ -98,8 +98,8 @@ class Player(pg.sprite.Sprite):
         for obj in self.groups()[0]:
             if self.rect.colliderect(obj.rect) and obj != self:
                 if isinstance(obj, Lava):
-                    game.print('Game Over, final score: '.split() +
-                               [str(game.score)], 3)
+                    game.printscreen('Game Over, final score: '.split() +
+                                     [str(game.score)], 3)
                     raise SystemExit
                 if self.vspeed > 0 and self.rect.bottom - obj.rect.top < 30:
                     self.rect.bottom = obj.rect.top
@@ -126,7 +126,7 @@ class Game:
         self.objects.add(self.lava)
         self.score = 0
 
-    def print(self, msg, delay):
+    def printscreen(self, msg, delay):
         """Print a message on the screen for delay seconds"""
         self.screen.fill(WHITE)
         font = pg.font.SysFont(None, 32, bold=True)
@@ -154,9 +154,9 @@ class Game:
         clock = pg.time.Clock()
         # make a generator for projectiles
         make_proj = Projectile.make_projectiles(FPS / 2)
-        self.print('Move with arrow keys'.split(), 1)
-        self.print('Jump on black blocks'.split(), 1)
-        self.print('Avoid lava floor'.split(), 1)
+        self.printscreen('Move with arrow keys'.split(), 1)
+        self.printscreen('Jump on black blocks'.split(), 1)
+        self.printscreen('Avoid lava floor'.split(), 1)
         while True:
             try:
                 make_proj.__next__().add(self.objects)
