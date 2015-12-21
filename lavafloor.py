@@ -2,6 +2,7 @@
 import random
 import pygame as pg
 import pygame.locals as pgl
+import pdb
 
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -11,8 +12,6 @@ FPS = 60
 VY_JUMP = 25
 VX = 10
 VY = 1
-
-pg.init()
 
 
 class Projectile(pg.sprite.Sprite):
@@ -38,7 +37,7 @@ class Projectile(pg.sprite.Sprite):
         while True:
             if not n % rate:
                 yield cls(0, random.randint(
-                    SCREEN_RES['y'] / 2, SCREEN_RES['y'] - 10))
+                    int(SCREEN_RES['y']*2/3), SCREEN_RES['y'] - 10))
             n += 1
             yield
 
@@ -50,7 +49,7 @@ class Lava(pg.sprite.Sprite):
         super().__init__()
         self.vx = 5
         self.rect = pg.Rect(
-            0, SCREEN_RES['y'] - 10, SCREEN_RES['x'] * 3 / 2, 20)
+            0, SCREEN_RES['y'] - 10, SCREEN_RES['x'] * 3 / 2, 10)
         self.rect.right = -SCREEN_RES['x']
 
     def update(self, game):
@@ -95,24 +94,28 @@ class Player(pg.sprite.Sprite):
             self.rect.left = 0
         if self.rect.right > SCREEN_RES['x']:
             self.rect.right = SCREEN_RES['x']
-        for obj in self.groups()[0]:
+        for obj in game.objects:
+            if self.rect.colliderect(obj.rect) and obj != self:
+                if self.vspeed > 0 and\
+                self.rect.bottom - obj.rect.top < 30 and\
+                not isinstance(obj, Lava):
+                    self.rect.bottom = obj.rect.top
+                    self.can_jump = True
+                    self.vspeed = 0
+        for obj in game.objects:
             if self.rect.colliderect(obj.rect) and obj != self:
                 if isinstance(obj, Lava):
                     game.printscreen('Game Over, final score: '.split() +
                                      [str(game.score)], 3)
-                    raise SystemExit
-                if self.vspeed > 0 and self.rect.bottom - obj.rect.top < 30:
-                    self.rect.bottom = obj.rect.top
-                    self.can_jump = True
-                self.vspeed = 0
+                    game.running = False
+                    return
         pg.draw.rect(screen, BLACK, self.rect)
 
 
 class Game:
     """Master class that manages game state and game/event loop"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, help=True):
         pg.display.set_caption('Impossible Pökö')
         self.screen = pg.display.set_mode(
             (SCREEN_RES['x'], SCREEN_RES['y']))
@@ -125,6 +128,8 @@ class Game:
         self.objects.add(self.player)
         self.objects.add(self.lava)
         self.score = 0
+        self.running = True
+        self.help = help
 
     def printscreen(self, msg, delay):
         """Print a message on the screen for delay seconds"""
@@ -154,10 +159,13 @@ class Game:
         clock = pg.time.Clock()
         # make a generator for projectiles
         make_proj = Projectile.make_projectiles(FPS / 2)
-        self.printscreen('Move with arrow keys'.split(), 1)
-        self.printscreen('Jump on black blocks'.split(), 1)
-        self.printscreen('Avoid lava floor'.split(), 1)
-        while True:
+        if self.help:
+            self.printscreen('Move with arrow keys'.split(), 1)
+            self.printscreen('Jump on black blocks'.split(), 1)
+            self.printscreen('Avoid lava floor'.split(), 1)
+        else:
+            self.printscreen('Practice makes perfect'.split(), 1)
+        while self.running:
             try:
                 make_proj.__next__().add(self.objects)
             except AttributeError:
@@ -171,5 +179,10 @@ class Game:
                 self.bg_text, (SCREEN_RES['x'] / 2, SCREEN_RES['y'] / 2))
             self.objects.update(self)
             pg.display.update()
+        
 
+
+pg.init()
 Game().run()
+while True:
+    Game(help=False).run()
