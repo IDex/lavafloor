@@ -37,7 +37,7 @@ class Projectile(pg.sprite.Sprite):
         while True:
             if not n % rate:
                 yield cls(0, random.randint(
-                    int(SCREEN_RES['y']*2/3), SCREEN_RES['y'] - 10))
+                    int(SCREEN_RES['y'] * 2 / 3), SCREEN_RES['y'] - 10))
             n += 1
             yield
 
@@ -97,8 +97,8 @@ class Player(pg.sprite.Sprite):
         for obj in game.objects:
             if self.rect.colliderect(obj.rect) and obj != self:
                 if self.vspeed > 0 and\
-                self.rect.bottom - obj.rect.top < 30 and\
-                not isinstance(obj, Lava):
+                        self.rect.bottom - obj.rect.top < 30 and\
+                        not isinstance(obj, Lava):
                     self.rect.bottom = obj.rect.top
                     self.can_jump = True
                     self.vspeed = 0
@@ -115,7 +115,7 @@ class Player(pg.sprite.Sprite):
 class Game:
     """Master class that manages game state and game/event loop"""
 
-    def __init__(self, help=True):
+    def __init__(self, show_help=True):
         pg.display.set_caption('Impossible Pökö')
         self.screen = pg.display.set_mode(
             (SCREEN_RES['x'], SCREEN_RES['y']))
@@ -129,7 +129,7 @@ class Game:
         self.objects.add(self.lava)
         self.score = 0
         self.running = True
-        self.help = help
+        self.show_help = show_help
 
     def printscreen(self, msg, delay):
         """Print a message on the screen for delay seconds"""
@@ -159,7 +159,7 @@ class Game:
         clock = pg.time.Clock()
         # make a generator for projectiles
         make_proj = Projectile.make_projectiles(FPS / 2)
-        if self.help:
+        if self.show_help:
             self.printscreen('Move with arrow keys'.split(), 1)
             self.printscreen('Jump on black blocks'.split(), 1)
             self.printscreen('Avoid lava floor'.split(), 1)
@@ -179,10 +179,9 @@ class Game:
                 self.bg_text, (SCREEN_RES['x'] / 2, SCREEN_RES['y'] / 2))
             self.objects.update(self)
             pg.display.update()
-        
 
 
 pg.init()
 Game().run()
 while True:
-    Game(help=False).run()
+    Game(show_help=False).run()
